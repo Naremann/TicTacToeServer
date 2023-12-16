@@ -30,21 +30,52 @@ public class Server {
     ServerSocket socket1;
     DataInputStream ear;
     PrintStream mouth;
+    Socket clientconnection;
 
     public Server() {
+
         try {
             socket1 = new ServerSocket(4000);
-            System.out.println("server is now ready....");
 
-            while (true) {
-                Socket clientconnection = socket1.accept();
-                /*waiting for clients to connect*/
-                Handler handler1 = new Handler(clientconnection);
-                handler1.start();
-            }
-        } catch (Exception ioe) {
-            System.out.println("error");
+        } catch (IOException ex) {
+            System.out.println("socket: " + ex.getLocalizedMessage());
         }
+        System.out.println("server is now ready....");
+
+        while (true) {
+
+            try {
+                String msg=null;
+                clientconnection = socket1.accept();
+                //Socket clientconnection = socket1.accept();
+
+                ear = new DataInputStream(clientconnection.getInputStream());
+                mouth = new PrintStream(clientconnection.getOutputStream());
+                msg = ear.readLine();
+                System.out.println("The client says: " + msg);
+                mouth.println("Are you hearing me?? ");
+                ear.close();
+                mouth.close();
+               
+
+                clientconnection = socket1.accept();
+
+                if (msg.equals("login")) {
+                    RegisterHandler registerHandler = new RegisterHandler(clientconnection);
+                    registerHandler.start();
+                } else {
+                    Handler handler1 = new Handler(clientconnection);
+                    handler1.start();
+                }
+                
+                
+
+                /*waiting for clients to connect*/
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }/*end of constructor*/
 
 
@@ -117,6 +148,6 @@ public class Server {
         }
     }/*end of Handler*/
     public static void main(String[] arg) {
-        Server server1 = new Server();
+        new Server();
     }
 }
