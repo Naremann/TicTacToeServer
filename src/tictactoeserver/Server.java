@@ -31,7 +31,7 @@ public class Server {
     DataInputStream ear;
     PrintStream mouth;
     Socket clientconnection;
-
+    static boolean turnServer=false ;
     public Server() {
 
         try {
@@ -42,7 +42,7 @@ public class Server {
         }
         System.out.println("server is now ready....");
 
-        while (true) {
+        while (turnServer) {
 
             try {
                 String msg=null;
@@ -147,7 +147,5 @@ public class Server {
             }
         }
     }/*end of Handler*/
-    public static void main(String[] arg) {
-        new Server();
-    }
+    
 }
