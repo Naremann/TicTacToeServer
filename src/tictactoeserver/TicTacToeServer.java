@@ -5,17 +5,36 @@
  */
 package tictactoeserver;
 
+import javafx.application.Application;
+import static javafx.application.Application.launch;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 /**
  *
  * @author user
  */
-public class TicTacToeServer {
+public class TicTacToeServer extends Application  {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+   
+    public static void main(String[] args) 
+    {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+         Parent root = new ServerUI(); 
+            String image = TicTacToeServer.class.getResource("app.jpg").toExternalForm();
+        root.setStyle("-fx-background-image: url('" + image + "'); "+
+                 "-fx-background-size: 100% 100%;"+
+                 "-fx-background-position: center center;"
+                );
+        Scene scene = new Scene(root);
+        
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
     
 }
