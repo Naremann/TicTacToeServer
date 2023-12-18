@@ -24,7 +24,6 @@ import network.Network;
  */
 public class ServerHandler 
     {
-
         DataInputStream dataInputStream;
         PrintStream printStream ;
         Network network = new Network();
@@ -48,7 +47,6 @@ public class ServerHandler
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(new StringReader(mess)).getAsJsonObject();
 
-        // Pass JsonObject to NetworkOperation
          System.out.println("Message processed: " + json);
          return network.login(json);
     }
@@ -56,7 +54,6 @@ public class ServerHandler
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(new StringReader(message)).getAsJsonObject();
 
-        // Pass JsonObject to NetworkOperation
          System.out.println("Message processed: " + json);
          network.login(json);
     }
