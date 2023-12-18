@@ -1,6 +1,10 @@
 package tictactoeserver;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,7 +13,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 
 public class ServerUI extends BorderPane {
-
     protected final FlowPane flowPane;
     protected final Label online_member;
     protected final Label online_member_num;
@@ -17,10 +20,11 @@ public class ServerUI extends BorderPane {
     protected final Label offline_member_num;
     protected final Button serverBtn;
     protected boolean turnServer;
-    private Server server;
+    private ServerHandler serverHandler;
     private boolean serverRunning = false;
+    ServerSocket serverSocket;
+    Socket socket ;
     public ServerUI() {
-        
         turnServer = false;
         flowPane = new FlowPane();
         online_member = new Label();
@@ -28,7 +32,6 @@ public class ServerUI extends BorderPane {
         offline_member = new Label();
         offline_member_num = new Label();
         serverBtn = new Button();
-
         setMaxHeight(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
@@ -67,13 +70,45 @@ public class ServerUI extends BorderPane {
         serverBtn.setFont(new Font(18.0));
         setCenter(serverBtn);
         serverBtn.setOnAction(event ->{
-            if (!serverRunning) {
-                serverBtn.setText("Stop Server");
-                startServer();
-            } else {
-                stopServer();
-                serverBtn.setText("Start Server");
-            }    
+            serverRunning=!serverRunning;
+            if(serverRunning)
+            {
+                try {
+                    serverSocket = new ServerSocket(4000);
+                    new Thread(()->{
+                         try {
+                             while(serverRunning)
+                             {
+                                socket = serverSocket.accept();
+                                serverHandler = new ServerHandler(socket);
+                                System.out.println(socket.getInetAddress());  
+                             }
+                                
+                            } catch (IOException ex) {
+                                Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                    
+                    }).start();
+                    serverBtn.setText("Stop Server");
+                } catch (IOException ex) {
+                    serverHandler.closeResources();
+                    ex.printStackTrace();
+                }
+            }
+            else
+            {
+                if (serverSocket != null && !serverSocket.isClosed()) {
+                    try {
+                        serverHandler.closeResources();
+                        serverSocket.close();
+                        serverBtn.setText("Start Server");
+                        System.out.println("stop");
+                    } catch (IOException ex) {
+                        serverHandler.closeResources();
+                        Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }   
         });
 
         flowPane.getChildren().add(online_member);
@@ -81,23 +116,5 @@ public class ServerUI extends BorderPane {
         flowPane.getChildren().add(offline_member);
         flowPane.getChildren().add(offline_member_num);
 
-    }
-    private void startServer() {
-        serverRunning = true;
-        server = new Server();
-    }
-
-    private void stopServer() {
-        serverRunning = false;
-        // Perform any cleanup or shutdown logic for your server here
-        // For example, you can close the server socket
-        if (server != null) {
-            server.turnServer = false;
-            try {
-                server.socket1.close();
-            } catch (IOException e) {
-                System.out.println("Error closing server socket: " + e.getMessage());
-            }
-        }
     }
 }
