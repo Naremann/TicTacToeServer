@@ -40,8 +40,26 @@ public class ServerHandler
                 }
                     System.out.println(message);
                 } catch (IOException io) {
+//                try {
+//                    request.close();
+//                } catch (IOException ex) {
+//                    Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+                    //closeResources();
                     System.out.println("can't take i/o stream");
                 }
+            finally{
+                try {
+                    if(request != null)
+                    {
+                        request.close();
+                    }
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeResources();
+            }
         }
         private boolean handleServerMessage(String mess) {
         JsonParser parser = new JsonParser();
