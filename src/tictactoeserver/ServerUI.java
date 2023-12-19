@@ -23,6 +23,7 @@ public class ServerUI extends BorderPane {
     private boolean serverRunning;
     private volatile boolean threadStart ;
     ServerSocket serverSocket;
+    Thread thred;
     Socket socket ;
     public ServerUI() {
         serverRunning = true;
@@ -76,7 +77,7 @@ public class ServerUI extends BorderPane {
                 threadStart=true;
                 try {
                     serverSocket = new ServerSocket(4000);
-                    new Thread(()->{
+                   thred= new Thread(()->{
                          try {
                              while(threadStart)
                              {
@@ -89,7 +90,8 @@ public class ServerUI extends BorderPane {
                                 threadStart=false;
                                 Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                    }).start();
+                    });
+                   thred.start();
                     serverBtn.setText("Stop Server");
                     serverRunning=!serverRunning;
                 } catch (IOException ex) {
@@ -99,6 +101,7 @@ public class ServerUI extends BorderPane {
             else
             {
                 threadStart=false;
+                thred.stop();
                 if (serverSocket != null && !serverSocket.isClosed()) {
                     try {
                         serverSocket.close();
@@ -112,7 +115,6 @@ public class ServerUI extends BorderPane {
                 }
             }   
         });
-
         flowPane.getChildren().add(online_member);
         flowPane.getChildren().add(online_member_num);
         flowPane.getChildren().add(offline_member);
