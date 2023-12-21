@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class Network 
 {
     DataAccessLayer dataAccessLayer;
-     boolean found = false ;
+    boolean found = false ;
     public Network()
     {
         dataAccessLayer =new DataAccessLayer();
