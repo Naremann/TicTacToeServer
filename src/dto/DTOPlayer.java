@@ -15,21 +15,24 @@ public class DTOPlayer implements Serializable{
     private String userName;
     private String email;
     private String password;
+    private String status;
+
 
     public DTOPlayer() {
     }
     
 
-    public DTOPlayer(String userName, String email, String password) {
+    public DTOPlayer(String userName, String email, String password,String Status) {
         this.userName = userName;
         this.email = email;
         this.password = password;
     }
     
 
-    public DTOPlayer(String userName, String passWord) {
+    public DTOPlayer(String userName, String passWord,String status) {
         this.userName = userName;
         this.password = passWord;
+        this.status=status;
     }
     
     
@@ -58,7 +61,13 @@ public class DTOPlayer implements Serializable{
         this.password = password;
     }
     
-    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
     
     
 }
