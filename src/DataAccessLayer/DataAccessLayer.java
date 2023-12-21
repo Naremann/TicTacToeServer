@@ -24,6 +24,7 @@ import tictactoeserver.Server;
 public class DataAccessLayer 
 {
      private Connection connection;
+     PreparedStatement pst;
      boolean result =false;
      
     public DataAccessLayer() {
@@ -36,33 +37,50 @@ public class DataAccessLayer
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public boolean  login(DTOPlayer player) {
-            try {
-                String statement = "SELECT * FROM PLAYER WHERE username = ? AND PASSWORD = ?";
-                PreparedStatement stat = connection.prepareStatement(statement);
-                stat.setString(1, player.getUserName());
-                stat.setString(2, player.getPassword());
-                ResultSet rs = stat.executeQuery();
-                if (rs.next()) {
-                    System.out.println(rs.next());
-                    result = true;
-                } else {
-                    result= false;
-                }
+    public String  login(DTOPlayer player,String IP) {
+                try
+                {
+                    PreparedStatement pst = connection.prepareStatement("Select password FROM player where username = ?");
+                    pst.setString(1, player.getUserName().toString());
+                    ResultSet rs = pst.executeQuery();
+                    if (rs.next()) {
+                        if (rs.getString(1).equals(player.getPassword())) {
+                            pst = connection.prepareStatement("update player set isavilable = 'online' where username = ?");
+                            pst.setString(1, player.getUserName());
+                            pst.executeUpdate();
+                            pst = connection.prepareStatement("update player set ip = ? where username = ?");
+                            pst.setString(1, IP);
+                            pst.setString(2, player.getUserName());
+                            pst.executeUpdate();
+                            return "login successfully";
+                        } else {
+                            return "Invalid Password please Try again";
+                        }
+                    } else {
+                        return "Invalid username please Sign up";
+                    }
+
             } catch (SQLException ex) {
-                System.out.println("Databasecheck error: " + ex.getMessage());
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
             }
-           return result; 
+
+            return null; 
         }
-    
+     
+     private void updateIp(String Ip, String userName) throws SQLException {
+        String sqlUpdate = "Update player set ip = ? where username = ?";
+        pst.setString(1, Ip);
+        pst.setString(2, userName);
+        PreparedStatement pst = connection.prepareStatement(sqlUpdate);
+        int rs = pst.executeUpdate();
+    }    
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
             }
         } catch (SQLException ex) {
-            System.out.println("errooooooeeee!!!!");
+            System.out.println("Data Access Layer conection Error");
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, "Error closing database connection", ex);
         }
     }

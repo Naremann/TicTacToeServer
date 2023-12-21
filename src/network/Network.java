@@ -23,30 +23,10 @@ public class Network
     public Network()
     {
         dataAccessLayer =new DataAccessLayer();
-        
     }
     
-    public boolean login(JsonObject json) 
+    public String login(DTOPlayer player, String IP) 
     {
-       
-
-        if (json.has("username")&&json.has("password")) {
-            
-            String username = json.get("username").getAsString();
-            String password = json.get("password").getAsString();
-            DTOPlayer player = new DTOPlayer(username, password);
-            System.out.println("Done with signUp");
-            System.out.println(player);
-            System.out.println(player.getUserName());
-            System.out.println(username + password);
-            found = dataAccessLayer.login(player);
-        }else {
-            System.out.println("Incomplete or malformed JSON payload for signup");
-            System.out.println("Received JSON payload: " + json.toString());
-            
-        }
-        return found;
+        return dataAccessLayer.login(player, IP );
     }
-    
-    
 }
