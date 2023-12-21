@@ -22,10 +22,11 @@ public class DTOPlayer implements Serializable{
     }
     
 
-    public DTOPlayer(String userName, String email, String password,String Status) {
+    public DTOPlayer(String userName, String email, String password,String status) {
         this.userName = userName;
         this.email = email;
         this.password = password;
+        this.status=status;
     }
     
 
@@ -34,6 +35,9 @@ public class DTOPlayer implements Serializable{
         this.password = passWord;
         this.status=status;
     }
+    
+    
+    
     
     
 

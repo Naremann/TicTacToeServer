@@ -28,116 +28,137 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import network.Network;
+import tictactoeserver.Constants;
 
 /**
  *
  * @author HimaMarey
  */
-public class ServerHandler 
-    {
-        DataInputStream dataInputStream;
-        PrintStream printStream ;
-        Network network;
-        Socket socket;
-        BufferedReader bufferReader;
-        String IP;
-        int portNum;
-        public ServerHandler(Socket socket) 
-        {
-            this.socket = socket;
-            IP = socket.getInetAddress().getHostAddress();
-            portNum = socket.getPort();
-            network = new Network();
-            try {
-                bufferReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                printStream = new PrintStream(socket.getOutputStream());
-                dataInputStream = new DataInputStream(socket.getInputStream());
-                readMessages();
+public class ServerHandler {
 
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+    DataInputStream dataInputStream;
+    PrintStream printStream;
+    Network network;
+    Socket socket;
+    BufferedReader bufferReader;
+    String IP;
+    int portNum;
+
+    public ServerHandler(Socket socket) {
+        this.socket = socket;
+        IP = socket.getInetAddress().getHostAddress();
+        portNum = socket.getPort();
+        network = new Network();
+        try {
+            bufferReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            printStream = new PrintStream(socket.getOutputStream());
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            readMessages();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+    }
 
-        public void readMessages() 
-        {
-            new Thread() {
-                @Override
-                public void run() {
+    public void readMessages() {
+        new Thread() {
+            @Override
+            public void run() {
 
-                    while (!socket.isClosed() && socket.isConnected()) {
-                        try {
+                while (!socket.isClosed() && socket.isConnected()) {
+                    try {
 
-                            String message = bufferReader.readLine();
-                            if (message == null) {
-                                socket.close();
-                                continue;
-                            }
-                            JsonReader jsonReader = (JsonReader) Json.createReader(new StringReader(message));
-                            JsonObject object = jsonReader.readObject();
-                            switch(object.getString("key"))
-                            {
-                                case "login":
-                                {
-                                    DTOPlayer player = new DTOPlayer(object.getString("username"), object.getString("password"),null);
-                                    String loginResponse = network.login(player, IP);
-                                    System.out.println(loginResponse);
+                        String message = bufferReader.readLine();
+                        if (message == null) {
+                            socket.close();
+                            continue;
+                        }
+                        JsonReader jsonReader = (JsonReader) Json.createReader(new StringReader(message));
+                        JsonObject object = jsonReader.readObject();
+                        switch (object.getString("key")) {
+                            case "login": {
+                                DTOPlayer player = new DTOPlayer(object.getString("username"), object.getString("password"), null);
+                                String loginResponse = network.login(player, IP);
+                                System.out.println(loginResponse);
 
-                                    Map<String, String> map = new HashMap<>();
+                                Map<String, String> map = new HashMap<>();
+                                map.put("key", "login");
+                                map.put("msg", loginResponse);
+                                message = new GsonBuilder().create().toJson(map);
+                                if (loginResponse.equals("login successfully")) {
+                                    Map<String, String> mapl = new HashMap<>();
                                     map.put("key", "login");
+                                    map.put("username", object.getString("username"));
                                     map.put("msg", loginResponse);
                                     message = new GsonBuilder().create().toJson(map);
-                                    if (loginResponse.equals("login successfully")) {
-                                    Map<String, String> mapl = new HashMap<>();
-                                        map.put("key", "login");
-                                        map.put("username", object.getString("username"));
-                                        map.put("msg", loginResponse);
-                                        message = new GsonBuilder().create().toJson(map);
-                                        sendMessage(message);
-                                    } else {
-                                        sendMessage(message);
-                                    }
+                                    sendMessage(message);
+                                } else {
+                                    sendMessage(message);
                                 }
-                                break;
                             }
-                        } catch (SocketException ex) {
-                            System.out.println("Client disconect");
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                            break;
+                            case "register":
+                                handleRegisterMessage(message, object);
+                                break;
+                        }
+                    } catch (SocketException ex) {
+                        System.out.println("Client disconect");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
 
-                        } 
                     }
                 }
-            }.start();
-        }
-        public void sendMessage(String message) 
-        {
-            new Thread() {
-                @Override
-                public void run() {
-                    printStream.println(message);
-                }
-
-            }.start();
-        }
-        public String getIp() 
-        {
-            return IP;
-        }
-        public void closeResources()
-        {
-            try {
-                System.out.println("Client disconnected");
-
-               if (dataInputStream != null) {
-                    dataInputStream.close();
-                }
-                if (printStream != null) {
-                    printStream.close();
-                }
-
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }.start();
+    }
+
+    public void sendMessage(String message) {
+        new Thread() {
+            @Override
+            public void run() {
+                printStream.println(message);
+            }
+
+        }.start();
+    }
+
+    public String getIp() {
+        return IP;
+    }
+
+    public void closeResources() {
+        try {
+            System.out.println("Client disconnected");
+
+            if (dataInputStream != null) {
+                dataInputStream.close();
+            }
+            if (printStream != null) {
+                printStream.close();
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    void handleRegisterMessage(String message, JsonObject jsonObject) {
+        DTOPlayer player = new DTOPlayer(jsonObject.getString("username"),
+                jsonObject.getString("email"), jsonObject.getString("password"),"");
+        String registerResponse = network.register(player, IP);
+        System.out.println("register response" + registerResponse);
+        Map<String,String> map = new HashMap<>();
+        map.put("key", Constants.REGISTER);
+        map.put("msg", registerResponse);
+        message = new GsonBuilder().create().toJson(map);
+        if (registerResponse.equals("registed successfully")) {
+            map.put("key", Constants.REGISTER);
+            map.put("username", jsonObject.getString("username"));
+            map.put("msg", registerResponse);
+            message = new GsonBuilder().create().toJson(map);
+            sendMessage(message);
+        } else {
+            sendMessage(message);
+        }
+    }
 }

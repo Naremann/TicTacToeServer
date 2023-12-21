@@ -29,4 +29,8 @@ public class Network
     {
         return dataAccessLayer.login(player, IP );
     }
+    
+    public String register(DTOPlayer player,String ip){
+        return dataAccessLayer.register(player, ip);
+    }
 }
