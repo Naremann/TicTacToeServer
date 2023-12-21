@@ -26,7 +26,8 @@ public class DataAccessLayer
      private Connection connection;
      PreparedStatement pst;
      boolean result =false;
-     
+     int onlinePlayers;
+     int offLinePlayers;
     public DataAccessLayer() {
         try {
             DriverManager.registerDriver(new ClientDriver());
@@ -40,6 +41,7 @@ public class DataAccessLayer
     public String  login(DTOPlayer player,String IP) {
                 try
                 {
+                    System.out.println(String.valueOf(getOnlinePlayers()));
                     PreparedStatement pst = connection.prepareStatement("Select password FROM player where username = ?");
                     pst.setString(1, player.getUserName().toString());
                     ResultSet rs = pst.executeQuery();
@@ -59,14 +61,50 @@ public class DataAccessLayer
                     } else {
                         return "Invalid username please Sign up";
                     }
-
+                    
             } catch (SQLException ex) {
                 Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             return null; 
         }
-     
+     public int getOnlinePlayers() {
+
+        String sql = "select count(username) AS count FROM  player Where isavilable = ? ";
+        
+         try {
+                PreparedStatement pst = connection.prepareStatement(sql);
+                pst.setString(1, "online");
+                onlinePlayers = 0;
+               ResultSet rs = pst.executeQuery();
+               while (rs.next()) {
+                   onlinePlayers = rs.getInt("count");
+               }
+         } catch (SQLException ex) {
+             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
+        return onlinePlayers;
+    }
+     public int getOffLinePlayers() {
+
+        String sql = "select count(username) AS count FROM  player Where isavilable = ? ";
+        
+         try {
+                PreparedStatement pst = connection.prepareStatement(sql);
+                pst.setString(1, "offline");
+                offLinePlayers = 0;
+               ResultSet rs = pst.executeQuery();
+               while (rs.next()) {
+                   offLinePlayers = rs.getInt("count");
+               }
+         } catch (SQLException ex) {
+             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
+        return offLinePlayers;
+    }
+       
      private void updateIp(String Ip, String userName) throws SQLException {
         String sqlUpdate = "Update player set ip = ? where username = ?";
         pst.setString(1, Ip);
