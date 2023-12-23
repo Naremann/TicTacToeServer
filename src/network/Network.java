@@ -9,6 +9,7 @@ import DataAccessLayer.DataAccessLayer;
 import com.google.gson.JsonObject;
 import dto.DTOPlayer;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,5 +33,9 @@ public class Network
     
     public String register(DTOPlayer player,String ip){
         return dataAccessLayer.register(player, ip);
+    }
+    
+    public String onlinePlayers(){
+        return dataAccessLayer.getOnlinePlayers();
     }
 }

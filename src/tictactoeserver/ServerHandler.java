@@ -7,6 +7,7 @@ package tictactoeserver;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import dto.DTOPlayer;
 import java.io.BufferedReader;
@@ -20,6 +21,7 @@ import java.io.StringReader;
 import java.net.Socket;
 import java.net.SocketException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,6 +31,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import network.Network;
 import tictactoeserver.Constants;
+
 
 /**
  *
@@ -99,6 +102,12 @@ public class ServerHandler {
                             break;
                             case "register":
                                 handleRegisterMessage(message, object);
+                                break;
+                            case"onlinePlayers":
+                            {
+                                String onlinePlayerss = network.onlinePlayers();
+                                sendMessage(onlinePlayerss);
+                            }
                                 break;
                         }
                     } catch (SocketException ex) {

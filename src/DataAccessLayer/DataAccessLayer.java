@@ -5,6 +5,10 @@
  */
 package DataAccessLayer;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import dto.DTOPlayer;
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,6 +16,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.derby.jdbc.ClientDriver;
@@ -29,12 +35,19 @@ public class DataAccessLayer {
     boolean result = false;
     int onlinePlayers;
     int offLinePlayers;
+    int resul;
 
     public DataAccessLayer() {
-        // DriverManager.registerDriver(new ClientDriver());
-        //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
-        //connection = DriverManager.getConnection("jdbc:derby://localhost:1527/XODB", "root", "root");
-        connection = MyConnection.getConnection();
+        try {
+            DriverManager.registerDriver(new ClientDriver());
+            //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
+            //jdbc:derby://localhost:1527/player -> database on abo abdo PC
+        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/player", "root", "root");
+       // connection = MyConnection.getConnection();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 
     public String register(DTOPlayer player,String ip) {
@@ -86,9 +99,87 @@ public class DataAccessLayer {
         }
 
         return null;
+    }//***********************
+   /*  public String online_player() {
+         System.out.println("online play");
+         List<DTOPlayer>onlineplayer=null;
+             
+        // private static final String ONLINE_QUERY = "SELECT * FROM PLAYER WHERE ISAVILABLE = 'online' ";
+
+        try {
+          if(connection !=null){
+               onlineplayer=new ArrayList<>();
+            if (MyConnection.isDbConnected(connection)) {
+                String ONLINE_QUERY="SELECT FROM ROOT PLAYER WHERE ISAVAILABLE='online'";
+               try ( pst  selectOnline= connection.prepareStatement(ONLINE_QUERY);
+                 ResultSet resul =selectOnline.executeUpdate()){
+                while( resul.next()){
+                String userName= resul.getString("USERNAME");
+                String email=resul.getString("EMAIL");
+                String password=resul.getString("PASSWORD");
+                int scoure=resul.getInt("SCOURE");
+                String isavilable=resul.getString("ISAVILABLE");
+                String ip=resul.getString("IP");
+                System.out.println(isavilable);
+                DTOPlayer player=new DTOPlayer (userNam,email,password,scoure,isavilable,ip);
+                online
+               
+               
+                   }
+                }
+                
+                }
+                preparedStatement.close();
+                connection.close();
+
+            }
+        } catch (SQLException ex) {
+            AlertMessage.infoBox(ex.getLocalizedMessage(), "Error!", null);
+
+        }
+
+        return result;  }*/
+    
+     public String getOnlinePlayers()  {
+
+        ArrayList<DTOPlayer> onlinePlayers = new ArrayList<>();
+
+        String sql = " SELECT * FROM player where ISAVILABLE ='online' ";
+        PreparedStatement pst;
+        try {
+            pst = connection.prepareStatement(sql);
+             ResultSet resultSet = pst.executeQuery();
+        Gson gson = new GsonBuilder().create();
+        while (resultSet.next()) {
+            onlinePlayers.add(new DTOPlayer(
+                    
+                    resultSet.getString("username"),
+                    resultSet.getString("email"),
+                    resultSet.getString("password"),
+                    resultSet.getString("ISAVILABLE")
+            ));
+        }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+       Gson gson = new GsonBuilder().create();
+            JsonObject setJson =new JsonObject();
+            setJson.addProperty("key","onlinePlayers");
+            JsonArray playersArray = gson.toJsonTree(onlinePlayers).getAsJsonArray();
+            setJson.add("onlinePlayersList", playersArray);
+
+            String jsonString = gson.toJson(setJson);
+            
+           // System.out.println("Result: " + setJson);
+         System.out.println("******************"+onlinePlayers.size());
+        return jsonString;
     }
 
-    public int getOnlinePlayers() {
+    
+    
+//*************************
+    public int getCountOnlinePlayers() {
 
         String sql = "select count(username) AS count FROM  player Where isavilable = ? ";
 
