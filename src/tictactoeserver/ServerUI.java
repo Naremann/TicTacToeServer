@@ -1,5 +1,6 @@
 package tictactoeserver;
 
+import DataAccessLayer.DataAccessLayer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,6 +26,7 @@ public class ServerUI extends BorderPane {
     ServerSocket serverSocket;
     Thread thred;
     Socket socket ;
+    DataAccessLayer dataAccessLayer ;
     public ServerUI() {
         serverRunning = true;
         threadStart = true;
@@ -34,6 +36,7 @@ public class ServerUI extends BorderPane {
         offline_member = new Label();
         offline_member_num = new Label();
         serverBtn = new Button();
+        dataAccessLayer= new DataAccessLayer();
         setMaxHeight(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
@@ -49,7 +52,7 @@ public class ServerUI extends BorderPane {
         online_member.setFont(new Font(18.0));
         FlowPane.setMargin(online_member, new Insets(24.0));
 
-        online_member_num.setText("Label");
+        online_member_num.setText(String.valueOf(dataAccessLayer.getCountOnlinePlayers()));
         FlowPane.setMargin(online_member_num, new Insets(24.0));
         online_member_num.setFont(new Font(18.0));
 
@@ -57,7 +60,7 @@ public class ServerUI extends BorderPane {
         offline_member.setFont(new Font(18.0));
         FlowPane.setMargin(offline_member, new Insets(24.0, 24.0, 24.0, 72.0));
 
-        offline_member_num.setText("Label");
+        offline_member_num.setText(String.valueOf(dataAccessLayer.getOffLinePlayers()));
         offline_member_num.setFont(new Font(18.0));
         FlowPane.setMargin(offline_member_num, new Insets(24.0));
         setTop(flowPane);
@@ -82,10 +85,8 @@ public class ServerUI extends BorderPane {
                              while(threadStart)
                              {
                                 socket = serverSocket.accept();
-                                serverHandler = new ServerHandler(socket);
-                                System.out.println(socket.getInetAddress());  
+                                serverHandler = new ServerHandler(socket);                                  
                              }
-                                
                             } catch (IOException ex) {
                                 threadStart=false;
                                 Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
