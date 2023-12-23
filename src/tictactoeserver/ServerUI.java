@@ -52,7 +52,7 @@ public class ServerUI extends BorderPane {
         online_member.setFont(new Font(18.0));
         FlowPane.setMargin(online_member, new Insets(24.0));
 
-        online_member_num.setText(String.valueOf(dataAccessLayer.getOnlinePlayers()));
+        online_member_num.setText(String.valueOf(dataAccessLayer.getCountOnlinePlayers()));
         FlowPane.setMargin(online_member_num, new Insets(24.0));
         online_member_num.setFont(new Font(18.0));
 
