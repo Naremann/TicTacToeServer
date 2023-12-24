@@ -14,4 +14,8 @@ public class Constants {
     public static String REGISTER="register";
     public static String KEY="key";
     
+    public static String INVITE_RESPONSE="invite";
+    
 }
+
+
