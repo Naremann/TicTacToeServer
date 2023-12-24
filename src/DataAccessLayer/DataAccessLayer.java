@@ -30,7 +30,7 @@ import tictactoeserver.db.MyConnection;
  */
 public class DataAccessLayer {
 
-    private Connection connection;
+    public Connection connection;
     PreparedStatement pst;
     boolean result = false;
     int onlinePlayers;
@@ -42,7 +42,7 @@ public class DataAccessLayer {
             DriverManager.registerDriver(new ClientDriver());
             //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
             //jdbc:derby://localhost:1527/player -> database on abo abdo PC
-        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/player", "root", "root");
+        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/XODB", "root", "root");
        // connection = MyConnection.getConnection();
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -224,7 +224,22 @@ public class DataAccessLayer {
         PreparedStatement pst = connection.prepareStatement(sqlUpdate);
         int rs = pst.executeUpdate();
     }
+    
+    public boolean setPlayersOffline(String IP) {
+        try {
+            String sqlUpdate = "Update player set ISAVILABLE = ? where ip = ?";
+            PreparedStatement pst = connection.prepareStatement(sqlUpdate);
+            pst.setString(1, "offline");
+            pst.setString(2, IP);
+            int rs = pst.executeUpdate();
+            return rs != 0;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            return false;
+        }
 
+    }
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
