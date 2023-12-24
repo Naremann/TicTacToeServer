@@ -8,6 +8,7 @@ package network;
 import DataAccessLayer.DataAccessLayer;
 import com.google.gson.JsonObject;
 import dto.DTOPlayer;
+import dto.DTORequest;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -38,4 +39,11 @@ public class Network
     public String onlinePlayers(){
         return dataAccessLayer.getOnlinePlayers();
     }
+    
+   /* public String friendsRequests(DTORequest request ){
+        String receiverUserName = request.getUserNameReceiver();
+        return dataAccessLayer.requests(receiverUserName);
+    }*/
+    
+    
 }

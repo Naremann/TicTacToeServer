@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.DTOPlayer;
+import dto.DTORequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,7 +43,7 @@ public class DataAccessLayer {
             DriverManager.registerDriver(new ClientDriver());
             //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
             //jdbc:derby://localhost:1527/player -> database on abo abdo PC
-        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/XODB", "root", "root");
+
        // connection = MyConnection.getConnection();
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,8 +149,8 @@ public class DataAccessLayer {
         PreparedStatement pst;
         try {
             pst = connection.prepareStatement(sql);
-             ResultSet resultSet = pst.executeQuery();
-        Gson gson = new GsonBuilder().create();
+            ResultSet resultSet = pst.executeQuery();
+            Gson gson = new GsonBuilder().create();
         while (resultSet.next()) {
             onlinePlayers.add(new DTOPlayer(
                     
@@ -225,6 +226,7 @@ public class DataAccessLayer {
         int rs = pst.executeUpdate();
     }
     
+
     public boolean setPlayersOffline(String IP) {
         try {
             String sqlUpdate = "Update player set ISAVILABLE = ? where ip = ?";
@@ -239,6 +241,7 @@ public class DataAccessLayer {
             return false;
         }
 
+
     }
     public void closeConnection() {
         try {
@@ -250,4 +253,6 @@ public class DataAccessLayer {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, "Error closing database connection", ex);
         }
     }
+
+   
 }

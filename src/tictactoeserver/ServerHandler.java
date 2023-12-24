@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import dto.DTOPlayer;
+import dto.DTORequest;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -104,6 +105,13 @@ public class ServerHandler {
                             case "register":
                                 handleRegisterMessage(message, object);
                                 break;
+                            
+                            case "invite":
+                            {
+                                handleInviteMessage(message, object);
+                            }
+                            break;
+                            
                             case"onlinePlayers":
                             {
                                 String onlinePlayerss = network.onlinePlayers();
@@ -155,7 +163,7 @@ public class ServerHandler {
 
     void handleRegisterMessage(String message, JsonObject jsonObject) {
         DTOPlayer player = new DTOPlayer(jsonObject.getString("username"),
-                jsonObject.getString("email"), jsonObject.getString("password"),"");
+        jsonObject.getString("email"), jsonObject.getString("password"),"");
         String registerResponse = network.register(player, IP);
         System.out.println("register response" + registerResponse);
         Map<String,String> map = new HashMap<>();
@@ -172,4 +180,38 @@ public class ServerHandler {
             sendMessage(message);
         }
     }
+    
+    void handleInviteMessage(String message, JsonObject jsonObject){
+
+    String senderUsername = jsonObject.getString("senderUsername");
+    String receiverUsername = jsonObject.getString("receiverUsername");
+    
+    DTORequest Request = new DTORequest(senderUsername, receiverUsername);
+    
+    //String requestResponse = network.register(Request, IP);
+
+    // Process the invite request, check if the receiver is online, etc.
+    // You can add your business logic here...
+
+    // Constructing a response message
+    Map<String, String> map = new HashMap<>();
+    map.put("key", Constants.INVITE_RESPONSE);
+
+    // Assuming you have a method to check if the receiver is online
+   /* if (isReceiverOnline(receiverUsername)) {
+        // Receiver is online and can respond to the invite
+        map.put("status", "online");
+    } else {
+        // Receiver is offline, cannot respond to the invite
+        map.put("status", "offline");
+    }*/
+
+    // Converting the map to a JSON string using Gson
+    String responseMessage = new GsonBuilder().create().toJson(map);
+    sendMessage(responseMessage);
+} 
+
+   
 }
+    
+   
