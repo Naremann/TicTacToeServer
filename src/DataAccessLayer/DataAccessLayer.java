@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.DTOPlayer;
+import dto.DTORequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,7 +43,8 @@ public class DataAccessLayer {
             DriverManager.registerDriver(new ClientDriver());
             //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
             //jdbc:derby://localhost:1527/player -> database on abo abdo PC
-        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/player", "root", "root");
+            
+        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
        // connection = MyConnection.getConnection();
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,8 +150,8 @@ public class DataAccessLayer {
         PreparedStatement pst;
         try {
             pst = connection.prepareStatement(sql);
-             ResultSet resultSet = pst.executeQuery();
-        Gson gson = new GsonBuilder().create();
+            ResultSet resultSet = pst.executeQuery();
+            Gson gson = new GsonBuilder().create();
         while (resultSet.next()) {
             onlinePlayers.add(new DTOPlayer(
                     
@@ -224,6 +226,46 @@ public class DataAccessLayer {
         PreparedStatement pst = connection.prepareStatement(sqlUpdate);
         int rs = pst.executeUpdate();
     }
+    
+    
+    
+    /*public String requestsOfSenders(String receiverUserName) {
+        ArrayList<DTORequest> reqSenders = new ArrayList<>();
+
+        try {
+            String statement = "SELECT userName FROM player WHERE userName IN (SELECT UserNameSender FROM Request WHERE userNameReceiver = ?)"
+                    + " AND isAvailable = 'online' AND ip IS NOT NULL";
+
+            PreparedStatement stat = connection.prepareStatement(statement);
+            stat.setString(1, receiverUserName);
+
+            ResultSet result = stat.executeQuery();
+
+            while (result.next()) {
+                String senderUserName = result.getString("userName");
+
+                DTORequest dtoRequest = new DTORequest(senderUserName);
+                reqSenders.add(dtoRequest);
+
+                //String senderIP = result.getString("ip");
+               // System.out.println("Sender: " + senderUserName + ", IP: " + senderIP);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        Gson gson = new GsonBuilder().create();
+        JsonArray sendersArray = gson.toJsonTree(reqSenders).getAsJsonArray();
+
+        JsonObject responseJson = new JsonObject();
+        responseJson.addProperty("key", "onlineSenders");
+        responseJson.add("onlineSendersList", sendersArray);
+
+        String jsonString = gson.toJson(responseJson);
+
+        return jsonString;   
+    } */  
 
     public void closeConnection() {
         try {
@@ -235,4 +277,6 @@ public class DataAccessLayer {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, "Error closing database connection", ex);
         }
     }
+
+   
 }
