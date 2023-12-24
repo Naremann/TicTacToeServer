@@ -31,7 +31,7 @@ import tictactoeserver.db.MyConnection;
  */
 public class DataAccessLayer {
 
-    private Connection connection;
+    public Connection connection;
     PreparedStatement pst;
     boolean result = false;
     int onlinePlayers;
@@ -43,8 +43,7 @@ public class DataAccessLayer {
             DriverManager.registerDriver(new ClientDriver());
             //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
             //jdbc:derby://localhost:1527/player -> database on abo abdo PC
-            
-        connection = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+
        // connection = MyConnection.getConnection();
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -227,46 +226,23 @@ public class DataAccessLayer {
         int rs = pst.executeUpdate();
     }
     
-    
-    
-    /*public String requestsOfSenders(String receiverUserName) {
-        ArrayList<DTORequest> reqSenders = new ArrayList<>();
 
+    public boolean setPlayersOffline(String IP) {
         try {
-            String statement = "SELECT userName FROM player WHERE userName IN (SELECT UserNameSender FROM Request WHERE userNameReceiver = ?)"
-                    + " AND isAvailable = 'online' AND ip IS NOT NULL";
-
-            PreparedStatement stat = connection.prepareStatement(statement);
-            stat.setString(1, receiverUserName);
-
-            ResultSet result = stat.executeQuery();
-
-            while (result.next()) {
-                String senderUserName = result.getString("userName");
-
-                DTORequest dtoRequest = new DTORequest(senderUserName);
-                reqSenders.add(dtoRequest);
-
-                //String senderIP = result.getString("ip");
-               // System.out.println("Sender: " + senderUserName + ", IP: " + senderIP);
-            }
-
+            String sqlUpdate = "Update player set ISAVILABLE = ? where ip = ?";
+            PreparedStatement pst = connection.prepareStatement(sqlUpdate);
+            pst.setString(1, "offline");
+            pst.setString(2, IP);
+            int rs = pst.executeUpdate();
+            return rs != 0;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            return false;
         }
 
-        Gson gson = new GsonBuilder().create();
-        JsonArray sendersArray = gson.toJsonTree(reqSenders).getAsJsonArray();
 
-        JsonObject responseJson = new JsonObject();
-        responseJson.addProperty("key", "onlineSenders");
-        responseJson.add("onlineSendersList", sendersArray);
-
-        String jsonString = gson.toJson(responseJson);
-
-        return jsonString;   
-    } */  
-
+    }
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
