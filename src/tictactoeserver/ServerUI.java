@@ -20,16 +20,11 @@ public class ServerUI extends BorderPane {
     protected final Label offline_member;
     protected final Label offline_member_num;
     protected final Button serverBtn;
-    private ServerHandler serverHandler;
     private boolean serverRunning;
-    private volatile boolean threadStart ;
-    ServerSocket serverSocket;
-    Thread thred;
-    Socket socket ;
     DataAccessLayer dataAccessLayer ;
+    Server server;
     public ServerUI() {
         serverRunning = true;
-        threadStart = true;
         flowPane = new FlowPane();
         online_member = new Label();
         online_member_num = new Label();
@@ -77,42 +72,18 @@ public class ServerUI extends BorderPane {
         serverBtn.setOnAction(event ->{
             if(serverRunning)
             {
-                threadStart=true;
-                try {
-                    serverSocket = new ServerSocket(4000);
-                   thred= new Thread(()->{
-                         try {
-                             while(threadStart)
-                             {
-                                socket = serverSocket.accept();
-                                serverHandler = new ServerHandler(socket);                                  
-                             }
-                            } catch (IOException ex) {
-                                threadStart=false;
-                                Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                    });
-                   thred.start();
-                    serverBtn.setText("Stop Server");
-                    serverRunning=!serverRunning;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                server = new Server();
+                serverRunning=!serverRunning;
+                serverBtn.setText("Stop Server");
             }
             else
             {
-                threadStart=false;
-                thred.stop();
-                if (serverSocket != null && !serverSocket.isClosed()) {
-                    try {
-                        serverSocket.close();
-                        serverBtn.setText("Start Server");
-                        serverRunning=!serverRunning;
-                        System.out.println("stop");
-                    } catch (IOException ex) {
-                        System.out.println("catch stop");
-                        Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                try {
+                    server.closeConnection();
+                    serverRunning=!serverRunning;
+                    serverBtn.setText("Start Server");
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }   
         });

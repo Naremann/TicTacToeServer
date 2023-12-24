@@ -74,6 +74,7 @@ public class ServerHandler {
                         String message = bufferReader.readLine();
                         if (message == null) {
                             socket.close();
+                            Server.myClients.remove(ServerHandler.this);
                             continue;
                         }
                         JsonReader jsonReader = (JsonReader) Json.createReader(new StringReader(message));
@@ -111,6 +112,7 @@ public class ServerHandler {
                                 break;
                         }
                     } catch (SocketException ex) {
+                        Server.myClients.remove(ServerHandler.this);
                         System.out.println("Client disconect");
                     } catch (IOException ex) {
                         ex.printStackTrace();
