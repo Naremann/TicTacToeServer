@@ -40,10 +40,9 @@ public class Network
         return dataAccessLayer.getOnlinePlayers();
     }
     
-   /* public String friendsRequests(DTORequest request ){
-        String receiverUserName = request.getUserNameReceiver();
-        return dataAccessLayer.requests(receiverUserName);
-    }*/
+    public String request(DTORequest req,String ip){
+        return dataAccessLayer.insertRequests(req,ip);
+    }
     
     
 }
