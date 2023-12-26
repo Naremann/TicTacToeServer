@@ -39,37 +39,34 @@ public class DataAccessLayer {
     int resul;
 
     public DataAccessLayer() {
-        try {
-            DriverManager.registerDriver(new ClientDriver());
+        
+         // DriverManager.registerDriver(new ClientDriver());
             //jdbc:derby://localhost:1527/XODB -> database on mar3y PC
             //jdbc:derby://localhost:1527/player -> database on abo abdo PC
 
-       // connection = MyConnection.getConnection();
-        } catch (SQLException ex) {
-            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+           connection = MyConnection.getConnection();
+   
     }
 
-    public String register(DTOPlayer player,String ip) {
+    public String register(DTOPlayer player, String ip) {
         String message = null;
         try {
-                String statement = "INSERT INTO PLAYER(USERNAME,EMAIL,PASSWORD) VALUES (?,?,?)";
-                PreparedStatement stat = connection.prepareStatement(statement);
-                stat.setString(1, player.getUserName());
-                stat.setString(2, player.getEmail());
-                stat.setString(3, player.getPassword());
-                if (stat.executeUpdate() <= 0) {
-                    message= "can't register";
-                } else {
-                    message= "registed successfully";
-                }
-            
+            String statement = "INSERT INTO PLAYER(USERNAME,EMAIL,PASSWORD) VALUES (?,?,?)";
+            PreparedStatement stat = connection.prepareStatement(statement);
+            stat.setString(1, player.getUserName());
+            stat.setString(2, player.getEmail());
+            stat.setString(3, player.getPassword());
+            if (stat.executeUpdate() <= 0) {
+                message = "can't register";
+            } else {
+                message = "registed successfully";
+            }
+
         } catch (SQLException ex) {
-            message="Error: "+ex.getLocalizedMessage();
+            message = "Error: " + ex.getLocalizedMessage();
         }
         return message;
-        
+
     }
 
     public String login(DTOPlayer player, String IP) {
@@ -101,7 +98,8 @@ public class DataAccessLayer {
 
         return null;
     }//***********************
-   /*  public String online_player() {
+
+    /*  public String online_player() {
          System.out.println("online play");
          List<DTOPlayer>onlineplayer=null;
              
@@ -140,8 +138,8 @@ public class DataAccessLayer {
         }
 
         return result;  }*/
-    
-     public String getOnlinePlayers()  {
+
+    public String getOnlinePlayers() {
 
         ArrayList<DTOPlayer> onlinePlayers = new ArrayList<>();
 
@@ -151,34 +149,31 @@ public class DataAccessLayer {
             pst = connection.prepareStatement(sql);
             ResultSet resultSet = pst.executeQuery();
             Gson gson = new GsonBuilder().create();
-        while (resultSet.next()) {
-            onlinePlayers.add(new DTOPlayer(
-                    
-                    resultSet.getString("username"),
-                    resultSet.getString("email"),
-                    resultSet.getString("password"),
-                    resultSet.getString("ISAVILABLE")
-            ));
-        }
+            while (resultSet.next()) {
+                onlinePlayers.add(new DTOPlayer(
+                        resultSet.getString("username"),
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        resultSet.getString("ISAVILABLE")
+                ));
+            }
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-       Gson gson = new GsonBuilder().create();
-            JsonObject setJson =new JsonObject();
-            setJson.addProperty("key","onlinePlayers");
-            JsonArray playersArray = gson.toJsonTree(onlinePlayers).getAsJsonArray();
-            setJson.add("onlinePlayersList", playersArray);
+        Gson gson = new GsonBuilder().create();
+        JsonObject setJson = new JsonObject();
+        setJson.addProperty("key", "onlinePlayers");
+        JsonArray playersArray = gson.toJsonTree(onlinePlayers).getAsJsonArray();
+        setJson.add("onlinePlayersList", playersArray);
 
-            String jsonString = gson.toJson(setJson);
-            
-           // System.out.println("Result: " + setJson);
-         System.out.println("******************"+onlinePlayers.size());
+        String jsonString = gson.toJson(setJson);
+
+        // System.out.println("Result: " + setJson);
+        System.out.println("******************" + onlinePlayers.size());
         return jsonString;
     }
 
-    
-    
 //*************************
     public int getCountOnlinePlayers() {
 
@@ -225,7 +220,6 @@ public class DataAccessLayer {
         PreparedStatement pst = connection.prepareStatement(sqlUpdate);
         int rs = pst.executeUpdate();
     }
-    
 
     public boolean setPlayersOffline(String IP) {
         try {
@@ -241,8 +235,29 @@ public class DataAccessLayer {
             return false;
         }
 
+    }
+
+    public String insertRequests(DTORequest requset, String ip) {
+        String message = null;
+        try {
+            String statement = "INSERT INTO REQUEST(USERNAMESENDER,USERNAMERECIVER) VALUES (?,?)";
+            PreparedStatement stat = connection.prepareStatement(statement);
+            stat.setString(1, requset.getUserNameSender());
+            stat.setString(2, requset.getUserNameReceiver());
+
+            if (stat.executeUpdate() <= 0) {
+                message = "can't send invite";
+            } else {
+                message = "Invite Sent Successfully";
+            }
+
+        } catch (SQLException ex) {
+            message = "Error: " + ex.getLocalizedMessage();
+        }
+        return message;
 
     }
+
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -254,5 +269,4 @@ public class DataAccessLayer {
         }
     }
 
-   
 }
