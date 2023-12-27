@@ -117,8 +117,11 @@ public class ServerHandler {
                             
                             case"onlinePlayers":
                             {
-                                String onlinePlayerss = network.onlinePlayers();
-                                sendMessage(onlinePlayerss);
+                                for (ServerHandler clientHandler : Server.myClients) {
+                clientHandler.sendMessage(network.onlinePlayers());
+                                }
+//                                String onlinePlayerss = network.onlinePlayers();
+//                                sendMessage(onlinePlayerss);
                             }
                                 break;
                         }
