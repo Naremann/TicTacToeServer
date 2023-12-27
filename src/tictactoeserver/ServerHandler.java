@@ -114,9 +114,15 @@ public class ServerHandler {
                             }
                             break;
 
-                            case "onlinePlayers": {
-                                String onlinePlayerss = network.onlinePlayers();
-                                sendMessage(onlinePlayerss);
+                            
+                            case"onlinePlayers":
+                            {
+                                for (ServerHandler clientHandler : Server.myClients) {
+                clientHandler.sendMessage(network.onlinePlayers());
+                                }
+//                                String onlinePlayerss = network.onlinePlayers();
+//                                sendMessage(onlinePlayerss);
+
                             }
                             break;
                             case "saveMove":
