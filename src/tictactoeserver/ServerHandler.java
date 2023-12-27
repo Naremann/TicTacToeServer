@@ -76,6 +76,7 @@ public class ServerHandler {
                         String message = bufferReader.readLine();
                         if (message == null) {
                             socket.close();
+                            network.setOfflinePlayer(userName);
                             Server.myClients.remove(ServerHandler.this);
                             continue;
                         }
@@ -122,6 +123,7 @@ public class ServerHandler {
                                 break;
                         }
                     } catch (SocketException ex) {
+                        network.setOfflinePlayer(userName);
                         Server.myClients.remove(ServerHandler.this);
                         System.out.println("Client disconect");
                     } catch (IOException ex) {
