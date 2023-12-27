@@ -221,12 +221,12 @@ public class DataAccessLayer {
         int rs = pst.executeUpdate();
     }
 
-    public boolean setPlayersOffline(String IP) {
+    public boolean setPlayersOffline(String userName) {
         try {
-            String sqlUpdate = "Update player set ISAVILABLE = ? where ip = ?";
+            String sqlUpdate = "Update player set ISAVILABLE = ? where username = ?";
             PreparedStatement pst = connection.prepareStatement(sqlUpdate);
             pst.setString(1, "offline");
-            pst.setString(2, IP);
+            pst.setString(2, userName);
             int rs = pst.executeUpdate();
             return rs != 0;
         } catch (SQLException ex) {

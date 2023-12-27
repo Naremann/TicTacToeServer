@@ -44,5 +44,8 @@ public class Network
         return dataAccessLayer.insertRequests(req,ip);
     }
     
-    
+    public boolean setOfflinePlayer(String userName)
+    {
+        return dataAccessLayer.setPlayersOffline(userName);
+    }
 }
