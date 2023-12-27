@@ -47,6 +47,7 @@ public class ServerHandler {
     BufferedReader bufferReader;
     String IP;
     int portNum;
+    String userName;
 
     public ServerHandler(Socket socket) {
         this.socket = socket;
@@ -91,6 +92,7 @@ public class ServerHandler {
                                 map.put("msg", loginResponse);
                                 message = new GsonBuilder().create().toJson(map);
                                 if (loginResponse.equals("login successfully")) {
+                                    userName = object.getString("username");
                                     Map<String, String> mapl = new HashMap<>();
                                     map.put("key", "login");
                                     map.put("username", object.getString("username"));
@@ -182,33 +184,40 @@ public class ServerHandler {
     }
     
     void handleInviteMessage(String message, JsonObject jsonObject){
+            
+        DTORequest request = new DTORequest(jsonObject.getString("senderUsername"),
+        jsonObject.getString("receiverUsername"));
+       // String senderIndex = jsonObject.getString("index");
+        //int index = Integer.parseInt(senderIndex); 
+        //System.out.println(jsonObject.getString("senderUsername"));
+        //System.out.println(jsonObject.getString("receiverUsername"));
+        String requestResponse = network.request(request, IP);
+        System.out.println("requestResponse" + requestResponse);
+        Map<String,String> map = new HashMap<>();
+        map.put("key","invite");
+        map.put("msg", requestResponse);       
+        message = new GsonBuilder().create().toJson(map);
+       // if (requestResponse.equals("Invite Sent Successfully")) {
+            map.put("key","invite");
+            map.put("senderUsername", jsonObject.getString("senderUsername"));
+           
+            map.put("receiverUsername", jsonObject.getString("receiverUsername")); 
+            map.put("msg","Invite Sent Successfully" );
+            message = new GsonBuilder().create().toJson(map);
+            
+            for(int i=0;i<Server.myClients.size();i++){
+                if(Server.myClients.get(i).userName.equals(jsonObject.getString("receiverUsername"))){
+                     Server.myClients.get(i).sendMessage(message);
+                     
+                }
+            }
+           
+           
+            
+        /*} else {
+            Server.myClients.get(index).sendMessage(message);
 
-    String senderUsername = jsonObject.getString("senderUsername");
-    String receiverUsername = jsonObject.getString("receiverUsername");
-    
-    DTORequest Request = new DTORequest(senderUsername, receiverUsername);
-    
-    //String requestResponse = network.register(Request, IP);
-
-    // Process the invite request, check if the receiver is online, etc.
-    // You can add your business logic here...
-
-    // Constructing a response message
-    Map<String, String> map = new HashMap<>();
-    map.put("key", Constants.INVITE_RESPONSE);
-
-    // Assuming you have a method to check if the receiver is online
-   /* if (isReceiverOnline(receiverUsername)) {
-        // Receiver is online and can respond to the invite
-        map.put("status", "online");
-    } else {
-        // Receiver is offline, cannot respond to the invite
-        map.put("status", "offline");
-    }*/
-
-    // Converting the map to a JSON string using Gson
-    String responseMessage = new GsonBuilder().create().toJson(map);
-    sendMessage(responseMessage);
+        }*/
 } 
 
    

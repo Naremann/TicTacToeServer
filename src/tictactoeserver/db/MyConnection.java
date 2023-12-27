@@ -23,7 +23,7 @@ public class MyConnection {
         try {
 
             DriverManager.deregisterDriver(new ClientDriver());
-            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToeGame", "root", "root");
+            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
 
         } catch (SQLException ex) {
             ex.printStackTrace();
