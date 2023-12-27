@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -32,7 +33,6 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import network.Network;
 import tictactoeserver.Constants;
-
 
 /**
  *
@@ -76,6 +76,7 @@ public class ServerHandler {
                         String message = bufferReader.readLine();
                         if (message == null) {
                             socket.close();
+                            network.setOfflinePlayer(userName);
                             Server.myClients.remove(ServerHandler.this);
                             continue;
                         }
@@ -107,21 +108,58 @@ public class ServerHandler {
                             case "register":
                                 handleRegisterMessage(message, object);
                                 break;
-                            
-                            case "invite":
-                            {
+
+                            case "invite": {
                                 handleInviteMessage(message, object);
                             }
                             break;
+
                             
                             case"onlinePlayers":
                             {
-                                String onlinePlayerss = network.onlinePlayers();
-                                sendMessage(onlinePlayerss);
+                                for (ServerHandler clientHandler : Server.myClients) {
+                clientHandler.sendMessage(network.onlinePlayers());
+                                }
+//                                String onlinePlayerss = network.onlinePlayers();
+//                                sendMessage(onlinePlayerss);
+
                             }
-                                break;
+                            break;
+                            case "saveMove":
+                                handleSaveMoveResponse(message, object);
+                            break;
+                            case "IGNORE":
+                            {
+                                Map<String, String> map = new HashMap<>();
+                                map.put("key", "IGNORE");
+                                map.put("reciverName", object.getString("reciverName"));
+                                message = new GsonBuilder().create().toJson(map);
+                                for (int i = 0; i < Server.myClients.size(); i++) {
+                                    if (Server.myClients.get(i).userName.equals(object.getString("senderName"))) {
+                                        Server.myClients.get(i).sendMessage(message);
+
+                                    }
+                                }
+                            }
+                            break;
+                            case "ACCEPT":
+                            {
+                                Map<String, String> map = new HashMap<>();
+                                map.put("key", "ACCEPT");
+                                map.put("reciverName", object.getString("reciverName"));
+                                map.put("msg", "hima ma3i hena ************************************");
+                                message = new GsonBuilder().create().toJson(map);
+                                for (int i = 0; i < Server.myClients.size(); i++) {
+                                    if (Server.myClients.get(i).userName.equals(object.getString("senderName"))) {
+                                        Server.myClients.get(i).sendMessage(message);
+
+                                    }
+                                }
+                            }
+                            break;
                         }
                     } catch (SocketException ex) {
+                        network.setOfflinePlayer(userName);
                         Server.myClients.remove(ServerHandler.this);
                         System.out.println("Client disconect");
                     } catch (IOException ex) {
@@ -165,10 +203,10 @@ public class ServerHandler {
 
     void handleRegisterMessage(String message, JsonObject jsonObject) {
         DTOPlayer player = new DTOPlayer(jsonObject.getString("username"),
-        jsonObject.getString("email"), jsonObject.getString("password"),"");
+                jsonObject.getString("email"), jsonObject.getString("password"), "");
         String registerResponse = network.register(player, IP);
         System.out.println("register response" + registerResponse);
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("key", Constants.REGISTER);
         map.put("msg", registerResponse);
         message = new GsonBuilder().create().toJson(map);
@@ -182,45 +220,102 @@ public class ServerHandler {
             sendMessage(message);
         }
     }
-    
-    void handleInviteMessage(String message, JsonObject jsonObject){
-            
+
+    void handleInviteMessage(String message, JsonObject jsonObject) {
+
         DTORequest request = new DTORequest(jsonObject.getString("senderUsername"),
-        jsonObject.getString("receiverUsername"));
-       // String senderIndex = jsonObject.getString("index");
+                jsonObject.getString("receiverUsername"));
+        // String senderIndex = jsonObject.getString("index");
         //int index = Integer.parseInt(senderIndex); 
         //System.out.println(jsonObject.getString("senderUsername"));
         //System.out.println(jsonObject.getString("receiverUsername"));
         String requestResponse = network.request(request, IP);
         System.out.println("requestResponse" + requestResponse);
-        Map<String,String> map = new HashMap<>();
-        map.put("key","invite");
-        map.put("msg", requestResponse);       
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "invite");
+        map.put("msg", requestResponse);
+        
         message = new GsonBuilder().create().toJson(map);
-       // if (requestResponse.equals("Invite Sent Successfully")) {
-            map.put("key","invite");
-            map.put("senderUsername", jsonObject.getString("senderUsername"));
-           
-            map.put("receiverUsername", jsonObject.getString("receiverUsername")); 
-            map.put("msg","Invite Sent Successfully" );
-            message = new GsonBuilder().create().toJson(map);
-            
-            for(int i=0;i<Server.myClients.size();i++){
-                if(Server.myClients.get(i).userName.equals(jsonObject.getString("receiverUsername"))){
-                     Server.myClients.get(i).sendMessage(message);
-                     
-                }
+        // if (requestResponse.equals("Invite Sent Successfully")) {
+        map.put("key", "invite");
+        map.put("senderUsername", jsonObject.getString("senderUsername"));
+
+        map.put("receiverUsername", jsonObject.getString("receiverUsername"));
+        map.put("msg", "Invite Sent Successfully");
+        message = new GsonBuilder().create().toJson(map);
+
+        for (int i = 0; i < Server.myClients.size(); i++) {
+            if (Server.myClients.get(i).userName.equals(jsonObject.getString("receiverUsername"))) {
+                Server.myClients.get(i).sendMessage(message);
+
             }
-           
-           
-            
+        }
+
         /*} else {
             Server.myClients.get(index).sendMessage(message);
 
         }*/
-} 
-
-   
-}
+    }
     
-   
+    
+    
+        void handleReceiveMessage(String message, JsonObject jsonObject) {
+
+       
+        String username=jsonObject.getString("reciever");
+        String response=jsonObject.getString("response");
+        // String senderIndex = jsonObject.getString("index");
+        //int index = Integer.parseInt(senderIndex); 
+        //System.out.println(jsonObject.getString("senderUsername"));
+        //System.out.println(jsonObject.getString("receiverUsername"));
+       
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "recieverResponse");
+        map.put("response", response);
+        message = new GsonBuilder().create().toJson(map);
+        // if (requestResponse.equals("Invite Sent Successfully")) {
+       
+
+        for (int i = 0; i < Server.myClients.size(); i++) {
+            if (Server.myClients.get(i).userName.equals(username)) {
+                Server.myClients.get(i).sendMessage(message);
+
+            }
+        }
+
+        /*} else {
+            Server.myClients.get(index).sendMessage(message);
+
+        }*/
+    }
+
+    public void randomStart() {
+        Boolean rand = new Random().nextBoolean();
+        if (rand) {
+            // gameOwner.move = "X";
+            //opponent.move = "O";
+        } else {
+            //gameOwner.move = "O";
+            //opponent.move = "X";
+        }
+    }
+
+    void handleSaveMoveResponse(String message, JsonObject jsonObject) {
+        Map<String, String> map = new HashMap<>();
+        String opponent = jsonObject.getString("opponentUserName");
+        String row = jsonObject.getString("row");
+        String col = jsonObject.getString("col");
+
+        map.put("key", "saveMove");
+        map.put("opponentUserName", opponent);
+        map.put("row", row);
+        map.put("col", col);
+        message = new GsonBuilder().create().toJson(map);
+        for (int i = 0; i < Server.myClients.size(); i++) {
+            if (Server.myClients.get(i).userName.equals(opponent)) {
+                sendMessage(message);
+            }
+        }
+    }
+
+}
