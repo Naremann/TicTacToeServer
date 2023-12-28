@@ -166,11 +166,7 @@ public class DataAccessLayer {
         setJson.addProperty("key", "onlinePlayers");
         JsonArray playersArray = gson.toJsonTree(onlinePlayers).getAsJsonArray();
         setJson.add("onlinePlayersList", playersArray);
-
         String jsonString = gson.toJson(setJson);
-
-        // System.out.println("Result: " + setJson);
-        System.out.println("******************" + onlinePlayers.size());
         return jsonString;
     }
 
