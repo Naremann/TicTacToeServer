@@ -147,6 +147,7 @@ public class ServerHandler {
                                 Map<String, String> map = new HashMap<>();
                                 map.put("key", "ACCEPT");
                                 map.put("reciverName", object.getString("reciverName"));
+                                map.put("senderName", object.getString("senderName"));
                                 map.put("msg", "hima ma3i hena ************************************");
                                 message = new GsonBuilder().create().toJson(map);
                                 for (int i = 0; i < Server.myClients.size(); i++) {
@@ -259,7 +260,7 @@ public class ServerHandler {
     
     
     
-        void handleReceiveMessage(String message, JsonObject jsonObject) {
+    void handleReceiveMessage(String message, JsonObject jsonObject) {
 
        
         String username=jsonObject.getString("reciever");
@@ -302,18 +303,22 @@ public class ServerHandler {
 
     void handleSaveMoveResponse(String message, JsonObject jsonObject) {
         Map<String, String> map = new HashMap<>();
-        String opponent = jsonObject.getString("opponentUserName");
+        String opponent = jsonObject.getString("userName");
         String row = jsonObject.getString("row");
         String col = jsonObject.getString("col");
-
-        map.put("key", "saveMove");
-        map.put("opponentUserName", opponent);
-        map.put("row", row);
-        map.put("col", col);
-        message = new GsonBuilder().create().toJson(map);
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        System.out.println("my Opponent is  "+opponent);
+        System.out.println(message);
+//        map.put("key", "saveMove");
+//        map.put("userName", opponent);
+//        map.put("mark", jsonObject.getString("mark"));
+//        map.put("row", row);
+//        map.put("col", col);
+ //       message = new GsonBuilder().create().toJson(map);
         for (int i = 0; i < Server.myClients.size(); i++) {
             if (Server.myClients.get(i).userName.equals(opponent)) {
                 sendMessage(message);
+                System.out.println(Server.myClients.get(i).userName+"==================================================================");
             }
         }
     }
