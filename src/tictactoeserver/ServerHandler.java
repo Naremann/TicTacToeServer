@@ -76,7 +76,7 @@ public class ServerHandler {
                         String message = bufferReader.readLine();
                         if (message == null) {
                             socket.close();
-                            network.setOfflinePlayer(userName);
+                            network.setPlayerStatus(userName,"offline");
                             Server.myClients.remove(ServerHandler.this);
                             continue;
                         }
@@ -146,6 +146,9 @@ public class ServerHandler {
                                 map.put("key", "ACCEPT");
                                 map.put("reciverName", object.getString("reciverName"));
                                 map.put("senderName", object.getString("senderName"));
+                                
+                                network.setPlayerStatus(object.getString("reciverName"),"onGame");
+                                network.setPlayerStatus(object.getString("senderName"),"onGame");
                                 map.put("msg", "hima ma3i hena ************************************");
                                 message = new GsonBuilder().create().toJson(map);
                                 for (int i = 0; i < Server.myClients.size(); i++) {
@@ -159,9 +162,12 @@ public class ServerHandler {
                             case "exitPlayer":
                                 handleExitPlayer(message,object);
                                 break;
+                                case "updateScore":
+                                updateScore(message,object);
+                                break;
                         }
                     } catch (SocketException ex) {
-                        network.setOfflinePlayer(userName);
+                        network.setPlayerStatus(userName,"offline");
                         Server.myClients.remove(ServerHandler.this);
                         System.out.println("Client disconect");
                     } catch (IOException ex) {
@@ -316,19 +322,34 @@ public class ServerHandler {
 
     void handleExitPlayer(String msg,JsonObject object)
     {
-        network.setOfflinePlayer(object.getString("userName"));
-        network.setOfflinePlayer(object.getString("opponentName"));
+        network.setPlayerStatus(object.getString("userName"),"offline");
+        
+        if(object.getString("opponentName") !=null)
+        {
+            network.setPlayerStatus(object.getString("opponentName"),"offline");
+            network.setPlayerScore(object.getString("opponentName"), 1);
+            for (int i = 0; i < Server.myClients.size(); i++) {
+            if (Server.myClients.get(i).userName.equals(object.getString("opponentName"))) {
+                Server.myClients.get(i).sendMessage(msg);
+            }
+        }
+        }
+        
         
 //        for (int i = 0; i < Server.myClients.size(); i++) {
 //            if (Server.myClients.get(i).userName.equals(object.getString("userName"))) {
 //                Server.myClients.get(i).closeResources();
 //            }
 //        }
-        for (int i = 0; i < Server.myClients.size(); i++) {
-            if (Server.myClients.get(i).userName.equals(object.getString("opponentName"))) {
-                Server.myClients.get(i).sendMessage(msg);
-            }
-        }
         
+        
+    }
+    
+    void updateScore(String message,JsonObject object)
+    {
+        System.out.println(object.getString("userName")+" user name");
+        System.out.println(object.getString("score")+" player scoure 2");
+        
+        network.setPlayerScore(object.getString("userName"),Integer.parseInt(object.getString("score")));
     }
 }

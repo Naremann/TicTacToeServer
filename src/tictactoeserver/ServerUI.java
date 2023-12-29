@@ -31,6 +31,8 @@ public class ServerUI extends BorderPane {
     protected final Label online_member_num;
     protected final Label offline_member;
     protected final Label offline_member_num;
+    protected final Label onGame_member;
+    protected final Label onGame_member_num;
     protected final Button serverBtn;
     protected final PieChart pieChart;
     private boolean serverRunning;
@@ -45,6 +47,8 @@ public class ServerUI extends BorderPane {
         online_member_num = new Label();
         offline_member = new Label();
         offline_member_num = new Label();
+        onGame_member = new Label();
+        onGame_member_num = new Label();
         serverBtn = new Button();
         pieChart = new PieChart();
         dataAccessLayer= new DataAccessLayer();
@@ -52,8 +56,8 @@ public class ServerUI extends BorderPane {
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
         setMinWidth(USE_PREF_SIZE);
-        setPrefHeight(400.0);
-        setPrefWidth(600.0);
+        setPrefHeight(480.0);
+        setPrefWidth(950.0);
 
         BorderPane.setAlignment(flowPane, javafx.geometry.Pos.CENTER);
         flowPane.setPrefHeight(73.0);
@@ -79,6 +83,15 @@ public class ServerUI extends BorderPane {
         offline_member_num.setText(String.valueOf(dataAccessLayer.getOffLinePlayers()));
         offline_member_num.setFont(new Font(18.0));
         offline_member_num.setTextFill(Color.web("#534e4e"));
+        onGame_member.setText("On Game Player");
+        onGame_member.setFont(Font.font("Verdana",FontWeight.BOLD,18.0));
+        onGame_member.setTextFill(Color.web("#928585"));
+        FlowPane.setMargin(onGame_member, new Insets(24.0,24.0,24.0,55.0));
+
+        onGame_member_num.setText(String.valueOf(dataAccessLayer.getCountOnlinePlayers()));
+        FlowPane.setMargin(onGame_member_num, new Insets(24.0));
+        onGame_member_num.setFont(new Font(18.0));
+        onGame_member_num.setTextFill(Color.web("#928585"));
         FlowPane.setMargin(offline_member_num, new Insets(24.0));
         setTop(flowPane);
         initPieChart();
@@ -135,6 +148,8 @@ public class ServerUI extends BorderPane {
         });
         flowPane.getChildren().add(online_member);
         flowPane.getChildren().add(online_member_num);
+        flowPane.getChildren().add(onGame_member);
+        flowPane.getChildren().add(onGame_member_num);
         flowPane.getChildren().add(offline_member);
         flowPane.getChildren().add(offline_member_num);
        flowPane.getChildren().add(pieChart);
@@ -145,6 +160,7 @@ public class ServerUI extends BorderPane {
             // Fetch online, offline, busy values from the database
             int onlineValue = dataAccessLayer.getCountOnlinePlayers();
             int offlineValue = dataAccessLayer.getOffLinePlayers();
+            int onGame = dataAccessLayer.getOnGamePlayers();
 //            System.out.println(onlineValue);
 //            System.out.println(offlineValue);
             // int busyValue = dataAccessLayer.getbusyeRate();
@@ -152,7 +168,7 @@ public class ServerUI extends BorderPane {
             Platform.runLater(() -> {
                 online_member_num.setText(String.valueOf(onlineValue));
                 offline_member_num.setText(String.valueOf(offlineValue));
-                // busy.setText(String.valueOf(busyValue));
+                 onGame_member_num.setText(String.valueOf(onGame));
                 
                 updatePieChart(onlineValue, offlineValue, 0);
                 
@@ -179,9 +195,9 @@ public class ServerUI extends BorderPane {
             if (dataSlice.getName().equals("Online")) {
                // style = "-fx-pie-color: #b2a5a5;"; // Online color
             }
-//            else if (dataSlice.getName().equals("Busy")) {
-//                style = "-fx-pie-color: #8B91B5;"; // Busy color
-//            } 
+            else if (dataSlice.getName().equals("OnGame")) {
+               // style = "-fx-pie-color: #8B91B5;"; // onGame color
+            } 
             else if (dataSlice.getName().equals("Offline")) {
                // style = "-fx-pie-color: #534e4e;"; // Offline color
             }
@@ -197,12 +213,12 @@ public class ServerUI extends BorderPane {
         
         int onlineValue =Integer.parseInt(online_member_num.getText());
         int offlineValue =Integer.parseInt(offline_member_num.getText());
-        //int busyValue = Integer.parseInt(busy.getText());
+        int onGame = Integer.parseInt(onGame_member_num.getText());
 
         pieChart.getData().addAll(
                 new PieChart.Data("Online", onlineValue),
-                new PieChart.Data("Offline", offlineValue)
-               // new PieChart.Data("Busy", busyValue)
+                new PieChart.Data("Offline", offlineValue),
+                new PieChart.Data("OnGame", onGame)
         );
         //traverseSceneGraph(pieChart, Color.WHITE);
         BorderPane.setAlignment(pieChart, Pos.CENTER_LEFT);

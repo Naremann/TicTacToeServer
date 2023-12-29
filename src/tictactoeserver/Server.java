@@ -58,7 +58,7 @@ public class Server  {
             map.put("msg", "close");
             String msg = new Gson().toJson(map);
             myClients.get(i).sendMessage(msg);
-            DB.setPlayersOffline(myClients.get(i).getIp());
+            DB.setPlayersStatus(myClients.get(i).getIp(),"offline");
             socket.close();
         }
 
