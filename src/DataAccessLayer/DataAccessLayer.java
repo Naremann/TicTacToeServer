@@ -36,6 +36,7 @@ public class DataAccessLayer {
     boolean result = false;
     int onlinePlayers;
     int offLinePlayers;
+    int onGamePlayers;
     int resul;
 
     public DataAccessLayer() {
@@ -51,11 +52,12 @@ public class DataAccessLayer {
     public String register(DTOPlayer player, String ip) {
         String message = null;
         try {
-            String statement = "INSERT INTO PLAYER(USERNAME,EMAIL,PASSWORD) VALUES (?,?,?)";
+            String statement = "INSERT INTO PLAYER(USERNAME,EMAIL,PASSWORD,SCORE) VALUES (?,?,?,?)";
             PreparedStatement stat = connection.prepareStatement(statement);
             stat.setString(1, player.getUserName());
             stat.setString(2, player.getEmail());
             stat.setString(3, player.getPassword());
+            stat.setInt(4, 0);
             if (stat.executeUpdate() <= 0) {
                 message = "can't register";
             } else {
@@ -154,7 +156,8 @@ public class DataAccessLayer {
                         resultSet.getString("username"),
                         resultSet.getString("email"),
                         resultSet.getString("password"),
-                        resultSet.getString("ISAVILABLE")
+                        resultSet.getString("ISAVILABLE"),
+                        resultSet.getInt("SCORE")
                 ));
             }
         } catch (SQLException ex) {
@@ -208,6 +211,25 @@ public class DataAccessLayer {
 
         return offLinePlayers;
     }
+    
+    public int getOnGamePlayers() {
+
+        String sql = "select count(username) AS count FROM  player Where isavilable = ? ";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setString(1, "onGame");
+            onGamePlayers = 0;
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                onGamePlayers = rs.getInt("count");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return onGamePlayers;
+    }
 
     private void updateIp(String Ip, String userName) throws SQLException {
         String sqlUpdate = "Update player set ip = ? where username = ?";
@@ -217,11 +239,11 @@ public class DataAccessLayer {
         int rs = pst.executeUpdate();
     }
 
-    public boolean setPlayersOffline(String userName) {
+    public boolean setPlayersStatus(String userName,String status) {
         try {
             String sqlUpdate = "Update player set ISAVILABLE = ? where username = ?";
             PreparedStatement pst = connection.prepareStatement(sqlUpdate);
-            pst.setString(1, "offline");
+            pst.setString(1,status );
             pst.setString(2, userName);
             int rs = pst.executeUpdate();
             return rs != 0;
@@ -231,6 +253,43 @@ public class DataAccessLayer {
             return false;
         }
 
+    }
+    
+    public boolean updatePlayerScore(String userName,int score) {
+        try {
+             score +=getPlayerScore(userName);
+             System.out.println(score);
+             System.out.println(getPlayerScore(userName));
+            String sqlUpdate = "Update player set score = ? where username = ?";
+            PreparedStatement pst = connection.prepareStatement(sqlUpdate);
+            pst.setInt(1,score );
+            pst.setString(2, userName);
+            int rs = pst.executeUpdate();
+            return rs != 0;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            return false;
+        }
+
+    }
+    
+    public int getPlayerScore(String userName)
+    {
+        int score=0;
+        try {
+            String sqlGetScore = "select score from player where username = ? ";
+            PreparedStatement psScore = connection.prepareStatement(sqlGetScore);
+            psScore.setString(1, userName);
+            ResultSet rs = psScore.executeQuery();
+            while(rs.next())
+            {
+                return rs.getInt("score");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return score;  
     }
 
     public String insertRequests(DTORequest requset, String ip) {
