@@ -80,6 +80,7 @@ public class Server  {
                     try {
                         Socket socket = serverSocket.accept();
                         myClients.add(new ServerHandler(socket));
+                        
                     } catch (SocketException ex) {
                         System.out.println("client is down");
 

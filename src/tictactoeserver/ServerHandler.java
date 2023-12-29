@@ -39,7 +39,7 @@ import tictactoeserver.Constants;
  * @author HimaMarey
  */
 public class ServerHandler {
-
+    
     DataInputStream dataInputStream;
     PrintStream printStream;
     Network network;
@@ -86,13 +86,11 @@ public class ServerHandler {
                             case "login": {
                                 DTOPlayer player = new DTOPlayer(object.getString("username"), object.getString("password"), null);
                                 String loginResponse = network.login(player, IP);
-                                System.out.println(loginResponse);
-
                                 Map<String, String> map = new HashMap<>();
                                 map.put("key", "login");
                                 map.put("msg", loginResponse);
                                 message = new GsonBuilder().create().toJson(map);
-                                if (loginResponse.equals("login successfully")) {
+                                if (loginResponse.equals("login successfully")) {                                    
                                     userName = object.getString("username");
                                     Map<String, String> mapl = new HashMap<>();
                                     map.put("key", "login");
@@ -158,6 +156,9 @@ public class ServerHandler {
                                 }
                             }
                             break;
+                            case "exitPlayer":
+                                handleExitPlayer(message,object);
+                                break;
                         }
                     } catch (SocketException ex) {
                         network.setOfflinePlayer(userName);
@@ -306,21 +307,28 @@ public class ServerHandler {
         String opponent = jsonObject.getString("userName");
         String row = jsonObject.getString("row");
         String col = jsonObject.getString("col");
-        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-        System.out.println("my Opponent is  "+opponent);
-        System.out.println(message);
-//        map.put("key", "saveMove");
-//        map.put("userName", opponent);
-//        map.put("mark", jsonObject.getString("mark"));
-//        map.put("row", row);
-//        map.put("col", col);
- //       message = new GsonBuilder().create().toJson(map);
         for (int i = 0; i < Server.myClients.size(); i++) {
             if (Server.myClients.get(i).userName.equals(opponent)) {
-                sendMessage(message);
-                System.out.println(Server.myClients.get(i).userName+"==================================================================");
+                Server.myClients.get(i).sendMessage(message);
             }
         }
     }
 
+    void handleExitPlayer(String msg,JsonObject object)
+    {
+        network.setOfflinePlayer(object.getString("userName"));
+        network.setOfflinePlayer(object.getString("opponentName"));
+        
+//        for (int i = 0; i < Server.myClients.size(); i++) {
+//            if (Server.myClients.get(i).userName.equals(object.getString("userName"))) {
+//                Server.myClients.get(i).closeResources();
+//            }
+//        }
+        for (int i = 0; i < Server.myClients.size(); i++) {
+            if (Server.myClients.get(i).userName.equals(object.getString("opponentName"))) {
+                Server.myClients.get(i).sendMessage(msg);
+            }
+        }
+        
+    }
 }
