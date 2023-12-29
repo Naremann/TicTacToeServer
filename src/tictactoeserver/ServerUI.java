@@ -21,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class ServerUI extends BorderPane {
@@ -59,22 +60,29 @@ public class ServerUI extends BorderPane {
         flowPane.setPrefWidth(600.0);
 
         online_member.setText("Online Player");
-        online_member.setFont(new Font(18.0));
-        FlowPane.setMargin(online_member, new Insets(24.0));
+        online_member.setFont(Font.font("Verdana",FontWeight.BOLD,18.0));
+        online_member.setTextFill(Color.web("#928585"));
+        FlowPane.setMargin(online_member, new Insets(24.0,24.0,24.0,55.0));
 
         online_member_num.setText(String.valueOf(dataAccessLayer.getCountOnlinePlayers()));
         FlowPane.setMargin(online_member_num, new Insets(24.0));
         online_member_num.setFont(new Font(18.0));
+        online_member_num.setTextFill(Color.web("#928585"));
+        
 
         offline_member.setText("Offline Player");
-        offline_member.setFont(new Font(18.0));
+        offline_member.setFont(Font.font("Verdana",FontWeight.BOLD,18.0));
+        offline_member.setTextFill(Color.web("#534e4e"));
+
         FlowPane.setMargin(offline_member, new Insets(24.0, 24.0, 24.0, 72.0));
 
         offline_member_num.setText(String.valueOf(dataAccessLayer.getOffLinePlayers()));
         offline_member_num.setFont(new Font(18.0));
+        offline_member_num.setTextFill(Color.web("#534e4e"));
         FlowPane.setMargin(offline_member_num, new Insets(24.0));
         setTop(flowPane);
         initPieChart();
+        pieChart.getStylesheets().add("/tictactoeserver/css/chart.css");
         BorderPane.setAlignment(pieChart, Pos.CENTER_LEFT);
         BorderPane.setAlignment(serverBtn, javafx.geometry.Pos.CENTER_RIGHT);
         BorderPane.setMargin(serverBtn, new Insets(24.0));
@@ -129,6 +137,7 @@ public class ServerUI extends BorderPane {
         flowPane.getChildren().add(online_member_num);
         flowPane.getChildren().add(offline_member);
         flowPane.getChildren().add(offline_member_num);
+       flowPane.getChildren().add(pieChart);
         
     }
     private void updateStatus(PieChart pieChart) {
@@ -168,15 +177,15 @@ public class ServerUI extends BorderPane {
         for (PieChart.Data dataSlice : dataSlices) {
             String style = "-fx-pie-color: #18317;"; // Default style
             if (dataSlice.getName().equals("Online")) {
-                style = "-fx-pie-color: #1577FF;"; // Online color
+               // style = "-fx-pie-color: #b2a5a5;"; // Online color
             }
 //            else if (dataSlice.getName().equals("Busy")) {
 //                style = "-fx-pie-color: #8B91B5;"; // Busy color
 //            } 
             else if (dataSlice.getName().equals("Offline")) {
-                style = "-fx-pie-color: #FF8FDA;"; // Offline color
+               // style = "-fx-pie-color: #534e4e;"; // Offline color
             }
-            dataSlice.getNode().setStyle(style);
+            //dataSlice.getNode().setStyle(style);
             // System.out.println("Style applied for " + dataSlice.getName() + ": " + style);
         }
     }
