@@ -97,7 +97,7 @@ public class ServerUI extends BorderPane {
         initPieChart();
         pieChart.getStylesheets().add("/tictactoeserver/css/chart.css");
         BorderPane.setAlignment(pieChart, Pos.CENTER_LEFT);
-        BorderPane.setAlignment(serverBtn, javafx.geometry.Pos.CENTER_RIGHT);
+        BorderPane.setAlignment(serverBtn, javafx.geometry.Pos.CENTER_RIGHT);  
         BorderPane.setMargin(serverBtn, new Insets(24.0));
         serverBtn.setLayoutX(70.0);
         serverBtn.setLayoutY(70.0);
