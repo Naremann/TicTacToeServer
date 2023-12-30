@@ -153,7 +153,6 @@ public class ServerUI extends BorderPane {
         flowPane.getChildren().add(offline_member);
         flowPane.getChildren().add(offline_member_num);
        flowPane.getChildren().add(pieChart);
-        
     }
     private void updateStatus(PieChart pieChart) {
         if (true) {
@@ -169,9 +168,7 @@ public class ServerUI extends BorderPane {
                 online_member_num.setText(String.valueOf(onlineValue));
                 offline_member_num.setText(String.valueOf(offlineValue));
                  onGame_member_num.setText(String.valueOf(onGame));
-                
-                updatePieChart(onlineValue, offlineValue, 0);
-                
+                updatePieChart(onlineValue, offlineValue, onGame);
             });
         }
     }
